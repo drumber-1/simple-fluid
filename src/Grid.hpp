@@ -2,7 +2,7 @@
 
 #include <array>
 
-#include "../util/Array2.hpp"
+#include "util/Array2.hpp"
 #include "FluidVariable.hpp"
 
 
