@@ -7,6 +7,7 @@
 #include "util/Array2.hpp"
 #include "FluidVariable.hpp"
 #include "boundary.hpp"
+#include "operators/advection.hpp"
 
 
 template <size_t NX, size_t NY>
@@ -31,6 +32,8 @@ Grid<NX, NY>::Grid(double spacing) : mSpacing(spacing) {
 
 template <size_t NX, size_t NY>
 void Grid<NX, NY>::step(double dt) {
+    advect_linear_backtrace(mFluid[DENSITY], mFluid[BUFFER_A], mFluid[VELOCITY_X], mFluid[VELOCITY_Y], mSpacing, dt);
+    std::swap(mFluid[DENSITY], mFluid[BUFFER_A]);
 }
 
 template <size_t NX, size_t NY>
