@@ -1,10 +1,11 @@
 #include <iostream>
+#include "Grid.hpp"
 
 int main() {
 
-	double x = 0.6;
-    int i = (int)x;
-    std::cout << i << "\n";
+	Grid<100, 100> grid(1.0);
+    grid.print_var(FluidVariable::DENSITY, "");
+    grid.print_var(FluidVariable::VELOCITY_X, "");
 
 	return 0;
 }
