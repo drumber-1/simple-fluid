@@ -3,22 +3,32 @@
 #include <array>
 
 #include "../util/Array2.hpp"
-#include "GridParameters.hpp"
 
-using FluidArray = Array2<double>;
+enum FluidVariable {
+	DENSITY,
+	VELOCITYX,
+	VELOCITYY,
+	BUFFER_A,
+	BUFFER_B,
+	NVAR
+};
 
+template <size_t NX, size_t NY>
 class Grid {
 public:
-	Grid(const GridParameters& gp);
-
-	size_t size(size_t dim) const;
+	Grid(double spacing);
 	void step(double dt);
 private:
-	const GridParameters parameters;
+    using FluidArray = Array2<double, NX, NY>;
 
-	FluidArray density;
-	FluidArray velocity_x;
-	FluidArray velocity_y;
-	FluidArray temp_buffer_a;
-	FluidArray temp_buffer_b;
+	const double mSpacing;
+	std::array<FluidArray, NVAR> mFluid;
 };
+
+template <size_t NX, size_t NY>
+Grid<NX, NY>::Grid(double spacing) : mSpacing(spacing) {
+}
+
+template <size_t NX, size_t NY>
+void Grid<NX, NY>::step(double dt) {
+}
