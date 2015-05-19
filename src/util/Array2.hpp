@@ -1,7 +1,5 @@
 #pragma once
 
-#include <iostream>
-
 #include <array>
 
 template <typename T, size_t NX, size_t NY>
@@ -29,3 +27,5 @@ template <typename T, size_t NX, size_t NY>
 inline size_t Array2<T, NX, NY>::flattened_index(size_t x, size_t y) const {
 	return y + (NY * x);
 }
+
+
