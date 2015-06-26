@@ -10,6 +10,6 @@ find_package(SFML COMPONENTS system window graphics REQUIRED)
 include_directories(${SFML_INCLUDE_DIR} ${PROJECT_SOURCE_DIR})
 
 set(SOURCE_FILES src/main.cpp)
-add_executable(simple_fluid ${SOURCE_FILES} src/fluid/Grid.hpp src/fluid/operators/diffusion.hpp src/fluid/util/Array2.hpp src/fluid/operators/common.hpp src/fluid/operators/advection.hpp src/fluid/operators/projection.hpp src/fluid/FluidVariable.hpp src/fluid/boundary.hpp)
+add_executable(simple_fluid ${SOURCE_FILES} src/fluid/Grid.hpp src/fluid/operators/diffusion.hpp src/fluid/util/Array2.hpp src/fluid/common.hpp src/fluid/operators/advection.hpp src/fluid/operators/projection.hpp src/fluid/FluidVariable.hpp src/fluid/boundary.hpp)
 
 target_link_libraries(simple_fluid ${SFML_LIBRARIES})

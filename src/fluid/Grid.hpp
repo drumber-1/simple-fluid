@@ -14,28 +14,28 @@
 template <size_t NX, size_t NY>
 class Grid {
 public:
-	Grid(double spacing);
-	void step(double dt);
+	Grid(float spacing);
+	void step(float dt);
     void print_var(FluidVariable var, const std::string& postfix);
-    double position(size_t index) const;
-    double operator() (FluidVariable var, size_t i, size_t j) const;
-    double& operator() (FluidVariable var, size_t i, size_t j);
+    float position(size_t index) const;
+    float operator() (FluidVariable var, size_t i, size_t j) const;
+    float& operator() (FluidVariable var, size_t i, size_t j);
 private:
-    using FluidArray = Array2<double, NX, NY>;
+    using FluidArray = Array2<float, NX, NY>;
 
-	const double mSpacing;
+	const float mSpacing;
 	std::array<FluidArray, FluidVariable::NVAR> mFluid;
 
     void initialise();
 };
 
 template <size_t NX, size_t NY>
-Grid<NX, NY>::Grid(double spacing) : mSpacing(spacing) {
+Grid<NX, NY>::Grid(float spacing) : mSpacing(spacing) {
     initialise();
 }
 
 template <size_t NX, size_t NY>
-void Grid<NX, NY>::step(double dt) {
+void Grid<NX, NY>::step(float dt) {
 
     advect_linear_backtrace(mFluid[DENSITY], mFluid[BUFFER_A], mFluid[VELOCITY_X], mFluid[VELOCITY_Y], mSpacing, dt);
     std::swap(mFluid[DENSITY], mFluid[BUFFER_A]);
@@ -68,22 +68,22 @@ void Grid<NX, NY>::print_var(FluidVariable var, const std::string& postfix) {
     fname += ".txt";
     std::ofstream out(fname.c_str());
     out <<"X\tY\t" << VARNAMES[var] << "\n";
-    for (int i = 0; i < NX; ++i) {
-        for (int j = 0; j < NY; ++j) {
+    for (size_t i = 0; i < NX; ++i) {
+        for (size_t j = 0; j < NY; ++j) {
             out << i * mSpacing << "\t" << j * mSpacing << "\t" << mFluid[var](i, j) << "\n";
         }
     }
 }
 
 template <size_t NX, size_t NY>
-double Grid<NX, NY>::position(size_t index) const {
+float Grid<NX, NY>::position(size_t index) const {
     return index * mSpacing;
 }
 
 template <size_t NX, size_t NY>
 void Grid<NX, NY>::initialise() {
-    for (int i = 0; i < NX; ++i) {
-        for (int j = 0; j < NY; ++j) {
+    for (size_t i = 0; i < NX; ++i) {
+        for (size_t j = 0; j < NY; ++j) {
             mFluid[DENSITY](i, j) = 1.0;
             mFluid[VELOCITY_X](i, j) = 0.0;
             mFluid[VELOCITY_Y](i, j) = 0.0;
@@ -104,11 +104,11 @@ void Grid<NX, NY>::initialise() {
 }
 
 template <size_t NX, size_t NY>
-double Grid<NX, NY>::operator()(FluidVariable var, size_t i, size_t j) const {
+float Grid<NX, NY>::operator()(FluidVariable var, size_t i, size_t j) const {
     return mFluid[var](i, j);
 }
 
 template <size_t NX, size_t NY>
-double& Grid<NX, NY>::operator()(FluidVariable var, size_t i, size_t j) {
+float& Grid<NX, NY>::operator()(FluidVariable var, size_t i, size_t j) {
     return mFluid[var](i, j);
 }
