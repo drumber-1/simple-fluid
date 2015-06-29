@@ -54,6 +54,28 @@ void updateVelocityVertices(const Grid<NX, NY> &grid, sf::VertexArray &vertices)
     }
 }
 
+template <size_t NX, size_t NY>
+void updateGridVertices(const Grid<NX, NY> &grid, sf::VertexArray &vertices) {
+    for (size_t i = 0; i <= GRIDX; ++i) {
+        sf::Vertex* line = &vertices[2 * i];
+
+        line[0].position = sf::Vector2f(i * GRID_SCALE, 0);
+        line[1].position = sf::Vector2f(i * GRID_SCALE, GRIDY * GRID_SCALE);
+
+        line[0].color = sf::Color::Blue;
+        line[1].color = sf::Color::Blue;
+    }
+    for (size_t j = 0; j <= GRIDY; ++j) {
+        sf::Vertex* line = &vertices[2 * (GRIDX + 1 + j)];
+
+        line[0].position = sf::Vector2f(0, j * GRID_SCALE);
+        line[1].position = sf::Vector2f(GRIDX * GRID_SCALE, j * GRID_SCALE);
+
+        line[0].color = sf::Color::Blue;
+        line[1].color = sf::Color::Blue;
+    }
+}
+
 int main() {
 
     const float spacing = 1.0;
@@ -74,11 +96,19 @@ int main() {
     velocityVertices.resize(GRIDX * GRIDY * 2);
     updateVelocityVertices(grid, velocityVertices);
 
-    sf::RenderWindow window(sf::VideoMode(GRIDX * GRID_SCALE, GRIDY * GRID_SCALE), "SFML TEST");
+    sf::VertexArray gridVertices;
+    gridVertices.setPrimitiveType(sf::Lines);
+    gridVertices.resize(2 * (GRIDX + GRIDY + 2));
+    updateGridVertices(grid, gridVertices);
+
+    unsigned int window_width = std::ceil(GRIDX * GRID_SCALE);
+    unsigned int window_height = std::ceil(GRIDY * GRID_SCALE);
+    sf::RenderWindow window(sf::VideoMode(window_width, window_height), "SFML TEST");
 
     sf::Clock clock;
     bool fluidPaused = true;
     bool showVelocity = false;
+    bool showGrid = false;
 
     while (window.isOpen()) {
         sf::Event event;
@@ -110,6 +140,14 @@ int main() {
                         std::cout << "Velocity lines enabled\n";
                         showVelocity = true;
                     }
+                } else if (event.key.code == sf::Keyboard::G) {
+                    if (showGrid) {
+                        std::cout << "Grid lines disabled\n";
+                        showGrid = false;
+                    } else {
+                        std::cout << "Grid lines enabled\n";
+                        showGrid = true;
+                    }
                 }
             }
         }
@@ -128,6 +166,9 @@ int main() {
         window.draw(densityVertices, &colourMap);
         if (showVelocity) {
             window.draw(velocityVertices);
+        }
+        if (showGrid) {
+            window.draw(gridVertices);
         }
         window.display();
     }
