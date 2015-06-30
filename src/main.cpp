@@ -1,4 +1,5 @@
 #include <iostream>
+#include <cfenv>
 
 #include "fluid/Grid.hpp"
 #include <SFML/Graphics.hpp>
@@ -16,10 +17,10 @@ void updateDensityVertices(const Grid<NX, NY> &grid, sf::VertexArray &vertices) 
         for (size_t j = 0; j < GRIDY; ++j) {
             sf::Vertex* quad = &vertices[(i + j * GRIDX) * 4];
 
-            int colx = (int)(256 * grid(FluidVariable::DENSITY, i, j) / RHOMAX);
+            int colx = (int)(256 * grid.density(i, j) / RHOMAX);
             int coly = 0;
 
-            quad[0].position = sf::Vector2f(GRID_SCALE * i      , GRID_SCALE * (j    ));
+            quad[0].position = sf::Vector2f(GRID_SCALE *  i     , GRID_SCALE * (j    ));
             quad[1].position = sf::Vector2f(GRID_SCALE * (i + 1), GRID_SCALE * (j    ));
             quad[2].position = sf::Vector2f(GRID_SCALE * (i + 1), GRID_SCALE * (j + 1));
             quad[3].position = sf::Vector2f(GRID_SCALE * (i    ), GRID_SCALE * (j + 1));
@@ -42,8 +43,8 @@ void updateVelocityVertices(const Grid<NX, NY> &grid, sf::VertexArray &vertices)
             float xstart = GRID_SCALE * (i + 0.5f);
             float ystart = GRID_SCALE * (j + 0.5f);
 
-            float xoffset = GRID_SCALE *  grid(FluidVariable::VELOCITY_X, i, j) * velocity_scaling;
-            float yoffset = GRID_SCALE *  grid(FluidVariable::VELOCITY_Y, i, j) * velocity_scaling;
+            float xoffset = GRID_SCALE *  grid.velocity_x(i, j) * velocity_scaling;
+            float yoffset = GRID_SCALE *  grid.velocity_y(i, j) * velocity_scaling;
 
             line[0].position = sf::Vector2f(xstart, ystart);
             line[1].position = sf::Vector2f(xstart + xoffset, ystart + yoffset);
@@ -77,7 +78,6 @@ void updateGridVertices(const Grid<NX, NY> &grid, sf::VertexArray &vertices) {
 }
 
 int main() {
-
     const float spacing = 1.0;
 
 	Grid<GRIDX, GRIDY> grid(spacing);
@@ -172,7 +172,6 @@ int main() {
         }
         window.display();
     }
-
 
 	return 0;
 }

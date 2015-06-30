@@ -8,7 +8,6 @@ public:
 	T operator() (size_t i, size_t j) const;
 	T& operator() (size_t i, size_t j);
 	inline size_t flattened_index(size_t i, size_t j) const;
-protected:
 	std::array<T, NX*NY> mData;
 };
 
@@ -24,7 +23,7 @@ T& Array2<T, NX, NY>::operator() (size_t i, size_t j) {
 }
 
 template <typename T, size_t NX, size_t NY>
-inline size_t Array2<T, NX, NY>::flattened_index(size_t i, size_t j) const {
+size_t Array2<T, NX, NY>::flattened_index(size_t i, size_t j) const {
 	return j + (NY * i);
 }
 

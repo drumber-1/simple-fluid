@@ -3,76 +3,57 @@
 #include <fstream>
 #include <array>
 #include <string>
-#include <src/fluid/operators/projection.hpp>
 
-#include "util/Array2.hpp"
+#include "FluidArray.hpp"
 #include "FluidVariable.hpp"
 #include "boundary.hpp"
 #include "operators/advection.hpp"
-
+#include "operators/projection.hpp"
 
 template <size_t NX, size_t NY>
 class Grid {
 public:
 	Grid(float spacing);
 	void step(float dt);
-    void print_var(FluidVariable var, const std::string& postfix);
     float position(size_t index) const;
-    float operator() (FluidVariable var, size_t i, size_t j) const;
-    float& operator() (FluidVariable var, size_t i, size_t j);
-private:
-    using FluidArray = Array2<float, NX, NY>;
 
+    FluidArray<NX, NY> density;
+    FluidArray<NX, NY> velocity_x;
+    FluidArray<NX, NY> velocity_y;
+    FluidArray<NX, NY> buffer_a;
+    FluidArray<NX, NY> buffer_b;
+private:
 	const float mSpacing;
-	std::array<FluidArray, FluidVariable::NVAR> mFluid;
+    BoundaryFunction<NX, NY> bf;
 
     void initialise();
+    void set_boundaries();
 };
 
 template <size_t NX, size_t NY>
-Grid<NX, NY>::Grid(float spacing) : mSpacing(spacing) {
+Grid<NX, NY>::Grid(float spacing) : mSpacing(spacing),
+                                    density(FluidVariable::DENSITY),
+                                    velocity_x(FluidVariable::VELOCITY_X),
+                                    velocity_y(FluidVariable::VELOCITY_Y),
+                                    buffer_a(FluidVariable::OTHER),
+                                    buffer_b(FluidVariable::OTHER) {
+    bf = set_bounds_wall<NX, NY>;
     initialise();
 }
 
 template <size_t NX, size_t NY>
 void Grid<NX, NY>::step(float dt) {
+    advect_linear_backtrace(density, buffer_a, velocity_x, velocity_y, mSpacing, dt, bf);
+    swap_fluid_array_data(density, buffer_a);
+    project_hodge_decomp(velocity_x, velocity_y, buffer_a, buffer_b, mSpacing, 20, bf);
 
-    advect_linear_backtrace(mFluid[DENSITY], mFluid[BUFFER_A], mFluid[VELOCITY_X], mFluid[VELOCITY_Y], mSpacing, dt);
-    std::swap(mFluid[DENSITY], mFluid[BUFFER_A]);
-    set_bounds_wall(DENSITY, (mFluid[DENSITY]));
+    advect_linear_backtrace(velocity_x, buffer_a, velocity_x, velocity_y, mSpacing, dt, bf);
+    swap_fluid_array_data(velocity_x, buffer_a);
 
-    project_hodge_decomp(mFluid[VELOCITY_X], mFluid[VELOCITY_Y], mFluid[BUFFER_A], mFluid[BUFFER_B], mSpacing, 20);
-    set_bounds_wall(VELOCITY_X, (mFluid[VELOCITY_X]));
-    set_bounds_wall(VELOCITY_Y, (mFluid[VELOCITY_Y]));
+    advect_linear_backtrace(velocity_y, buffer_a, velocity_x, velocity_y, mSpacing, dt, bf);
+    swap_fluid_array_data(velocity_y, buffer_a);
 
-    advect_linear_backtrace(mFluid[VELOCITY_X], mFluid[BUFFER_A], mFluid[VELOCITY_X], mFluid[VELOCITY_Y], mSpacing, dt);
-    std::swap(mFluid[VELOCITY_X], mFluid[BUFFER_A]);
-    set_bounds_wall(VELOCITY_X, (mFluid[VELOCITY_X]));
-
-    advect_linear_backtrace(mFluid[VELOCITY_Y], mFluid[BUFFER_A], mFluid[VELOCITY_X], mFluid[VELOCITY_Y], mSpacing, dt);
-    std::swap(mFluid[VELOCITY_Y], mFluid[BUFFER_A]);
-    set_bounds_wall(VELOCITY_Y, (mFluid[VELOCITY_Y]));
-
-    project_hodge_decomp(mFluid[VELOCITY_X], mFluid[VELOCITY_Y], mFluid[BUFFER_A], mFluid[BUFFER_B], mSpacing, 20);
-    set_bounds_wall(VELOCITY_X, (mFluid[VELOCITY_X]));
-    set_bounds_wall(VELOCITY_Y, (mFluid[VELOCITY_Y]));
-
-}
-
-template <size_t NX, size_t NY>
-void Grid<NX, NY>::print_var(FluidVariable var, const std::string& postfix) {
-    std::string fname = VARNAMES[var];
-    if (postfix != "") {
-        fname += "_" + postfix;
-    }
-    fname += ".txt";
-    std::ofstream out(fname.c_str());
-    out <<"X\tY\t" << VARNAMES[var] << "\n";
-    for (size_t i = 0; i < NX; ++i) {
-        for (size_t j = 0; j < NY; ++j) {
-            out << i * mSpacing << "\t" << j * mSpacing << "\t" << mFluid[var](i, j) << "\n";
-        }
-    }
+    project_hodge_decomp(velocity_x, velocity_y, buffer_a, buffer_b, mSpacing, 20, bf);
 }
 
 template <size_t NX, size_t NY>
@@ -84,31 +65,25 @@ template <size_t NX, size_t NY>
 void Grid<NX, NY>::initialise() {
     for (size_t i = 0; i < NX; ++i) {
         for (size_t j = 0; j < NY; ++j) {
-            mFluid[DENSITY](i, j) = 1.0;
-            mFluid[VELOCITY_X](i, j) = 0.0;
-            mFluid[VELOCITY_Y](i, j) = 0.0;
-            mFluid[BUFFER_A](i, j) = 0.0;
-            mFluid[BUFFER_B](i, j) = 0.0;
+            density(i, j) = 1.0;
+            velocity_x(i, j) = 0.0;
+            velocity_y(i, j) = 0.0;
+            buffer_a(i, j) = 0.0;
+            buffer_b(i, j) = 0.0;
 
             if (i > NX / 4 && i < 3 * NX / 4 && j > NY / 4 && j < 3 * NY / 4) {
-                mFluid[VELOCITY_X](i, j) = 1.0;
-                mFluid[DENSITY](i, j) = 10.0;
+                velocity_x(i, j) = 1.0;
+                density(i, j) = 10.0;
             }
         }
     }
 
-    for (int n = 0; n < FluidVariable::NVAR; ++n) {
-        FluidVariable var = static_cast<FluidVariable>(n);
-        set_bounds_wall(var, mFluid[var]);
-    }
+    set_boundaries();
 }
 
 template <size_t NX, size_t NY>
-float Grid<NX, NY>::operator()(FluidVariable var, size_t i, size_t j) const {
-    return mFluid[var](i, j);
-}
-
-template <size_t NX, size_t NY>
-float& Grid<NX, NY>::operator()(FluidVariable var, size_t i, size_t j) {
-    return mFluid[var](i, j);
+void Grid<NX, NY>::set_boundaries() {
+    set_bounds_wall<NX, NY>(density);
+    set_bounds_wall<NX, NY>(velocity_x);
+    set_bounds_wall<NX, NY>(velocity_y);
 }
