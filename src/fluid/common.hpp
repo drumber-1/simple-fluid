@@ -1,7 +1,11 @@
 #pragma once
 
 #include <functional>
-#include "FluidArray.hpp"
+#include "util/Array2.hpp"
+#include "FluidVariable.hpp"
 
 template <size_t NX, size_t NY>
-using BoundaryFunction = std::function<void(FluidArray<NX, NY>&)>;
+using FluidArray = Array2<float, NX, NY>;
+
+template <size_t NX, size_t NY>
+using BoundaryFunction = std::function<void(FluidArray<NX, NY>&, FluidVariable)>;

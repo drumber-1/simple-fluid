@@ -4,8 +4,6 @@
 #include <array>
 #include <string>
 
-#include "FluidArray.hpp"
-#include "FluidVariable.hpp"
 #include "boundary.hpp"
 #include "operators/advection.hpp"
 #include "operators/projection.hpp"
@@ -31,27 +29,22 @@ private:
 };
 
 template <size_t NX, size_t NY>
-Grid<NX, NY>::Grid(float spacing) : density(FluidVariable::DENSITY),
-                                    velocity_x(FluidVariable::VELOCITY_X),
-                                    velocity_y(FluidVariable::VELOCITY_Y),
-                                    buffer_a(FluidVariable::OTHER),
-                                    buffer_b(FluidVariable::OTHER),
-                                    mSpacing(spacing) {
+Grid<NX, NY>::Grid(float spacing) : mSpacing(spacing) {
     bf = set_bounds_wall<NX, NY>;
     initialise();
 }
 
 template <size_t NX, size_t NY>
 void Grid<NX, NY>::step(float dt) {
-    advect_linear_backtrace(density, buffer_a, velocity_x, velocity_y, mSpacing, dt, bf);
-    swap_fluid_array_data(density, buffer_a);
+    advect_linear_backtrace(density, buffer_a, velocity_x, velocity_y, mSpacing, dt, bf, FluidVariable::DENSITY);
+    std::swap(density, buffer_a);
     project_hodge_decomp(velocity_x, velocity_y, buffer_a, buffer_b, mSpacing, 20, bf);
 
-    advect_linear_backtrace(velocity_x, buffer_a, velocity_x, velocity_y, mSpacing, dt, bf);
-    swap_fluid_array_data(velocity_x, buffer_a);
+    advect_linear_backtrace(velocity_x, buffer_a, velocity_x, velocity_y, mSpacing, dt, bf, FluidVariable::VELOCITY_X);
+    std::swap(velocity_x, buffer_a);
 
-    advect_linear_backtrace(velocity_y, buffer_a, velocity_x, velocity_y, mSpacing, dt, bf);
-    swap_fluid_array_data(velocity_y, buffer_a);
+    advect_linear_backtrace(velocity_y, buffer_a, velocity_x, velocity_y, mSpacing, dt, bf, FluidVariable::VELOCITY_Y);
+    std::swap(velocity_y, buffer_a);
 
     project_hodge_decomp(velocity_x, velocity_y, buffer_a, buffer_b, mSpacing, 20, bf);
 }
@@ -83,7 +76,7 @@ void Grid<NX, NY>::initialise() {
 
 template <size_t NX, size_t NY>
 void Grid<NX, NY>::set_boundaries() {
-    set_bounds_wall<NX, NY>(density);
-    set_bounds_wall<NX, NY>(velocity_x);
-    set_bounds_wall<NX, NY>(velocity_y);
+    set_bounds_wall<NX, NY>(density, FluidVariable::DENSITY);
+    set_bounds_wall<NX, NY>(velocity_x, FluidVariable::VELOCITY_X);
+    set_bounds_wall<NX, NY>(velocity_y, FluidVariable::VELOCITY_Y);
 }

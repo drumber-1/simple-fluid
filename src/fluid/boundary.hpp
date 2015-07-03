@@ -1,12 +1,11 @@
 #pragma once
 
 #include "common.hpp"
-#include "FluidArray.hpp"
 #include "FluidVariable.hpp"
 
 template <size_t NX, size_t NY>
-void set_bounds_wall(FluidArray<NX, NY>& array) {
-    if (array.fluidVariable == FluidVariable::VELOCITY_X) {
+void set_bounds_wall(FluidArray<NX, NY>& array, FluidVariable var) {
+    if (var == FluidVariable::VELOCITY_X) {
         for (size_t i = 1; i < NX - 1; ++i) {
             array(i, 0     ) = array(i, 1     );
             array(i, NY - 1) = array(i, NY - 2);
@@ -15,7 +14,7 @@ void set_bounds_wall(FluidArray<NX, NY>& array) {
             array(0     , j) = -array(1     , j);
             array(NX - 1, j) = -array(NX - 2, j);
         }
-    } else if (array.fluidVariable == FluidVariable::VELOCITY_Y) {
+    } else if (var == FluidVariable::VELOCITY_Y) {
         for (size_t i = 1; i < NX - 1; ++i) {
             array(i, 0     ) = -array(i, 1     );
             array(i, NY - 1) = -array(i, NY - 2);

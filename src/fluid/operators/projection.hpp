@@ -11,8 +11,8 @@ void project_hodge_decomp(FluidArray<NX, NY>& xvel, FluidArray<NX, NY>& yvel, Fl
         }
     }
 
-    boundary(div);
-    boundary(p);
+    boundary(div, FluidVariable::OTHER);
+    boundary(p, FluidVariable::OTHER);
 
     for (size_t istep = 0; istep < nsteps; ++istep) {
         for (size_t i = 1; i < NX - 1; ++i) {
@@ -20,7 +20,7 @@ void project_hodge_decomp(FluidArray<NX, NY>& xvel, FluidArray<NX, NY>& yvel, Fl
                 p(i, j) = (div(i, j) + p(i + 1, j) + p(i - 1, j) + p(i, j + 1) + p(i, j - 1)) / 4.0f;
             }
         }
-        boundary(p);
+        boundary(p, FluidVariable::OTHER);
     }
 
     for (size_t i = 1; i < NX - 1; ++i) {
@@ -30,6 +30,6 @@ void project_hodge_decomp(FluidArray<NX, NY>& xvel, FluidArray<NX, NY>& yvel, Fl
         }
     }
 
-    boundary(xvel);
-    boundary(yvel);
+    boundary(xvel, FluidVariable::VELOCITY_X);
+    boundary(yvel, FluidVariable::VELOCITY_Y);
 }

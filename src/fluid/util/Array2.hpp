@@ -8,6 +8,7 @@ public:
 	T operator() (size_t i, size_t j) const;
 	T& operator() (size_t i, size_t j);
 	inline size_t flattened_index(size_t i, size_t j) const;
+private:
 	std::array<T, NX*NY> mData;
 };
 
