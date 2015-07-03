@@ -17,10 +17,6 @@ void project_hodge_decomp(FluidArray<NX, NY>& xvel, FluidArray<NX, NY>& yvel, Fl
     for (size_t istep = 0; istep < nsteps; ++istep) {
         for (size_t i = 1; i < NX - 1; ++i) {
             for (size_t j = 1; j < NY - 1; ++j) {
-                //p(i, j) = div(i, j) / 4.0f;
-                //for (size_t n = 0; n < 4; ++n) {
-                //    p(i, j) += p(i + IADJ[n], j + JADJ[n]) / 4.0;
-                //}
                 p(i, j) = (div(i, j) + p(i + 1, j) + p(i - 1, j) + p(i, j + 1) + p(i, j - 1)) / 4.0f;
             }
         }
