@@ -1,6 +1,5 @@
 #pragma once
 
-#include <src/fluid/FluidVariable.hpp>
 #include "../common.hpp"
 
 template <size_t NX, size_t NY>
