@@ -31,12 +31,12 @@ private:
 };
 
 template <size_t NX, size_t NY>
-Grid<NX, NY>::Grid(float spacing) : mSpacing(spacing),
-                                    density(FluidVariable::DENSITY),
+Grid<NX, NY>::Grid(float spacing) : density(FluidVariable::DENSITY),
                                     velocity_x(FluidVariable::VELOCITY_X),
                                     velocity_y(FluidVariable::VELOCITY_Y),
                                     buffer_a(FluidVariable::OTHER),
-                                    buffer_b(FluidVariable::OTHER) {
+                                    buffer_b(FluidVariable::OTHER),
+                                    mSpacing(spacing) {
     bf = set_bounds_wall<NX, NY>;
     initialise();
 }
