@@ -8,7 +8,7 @@ const size_t GRIDX = 100;
 const size_t GRIDY = 100;
 
 const float RHOMAX = 10.0;
-const float GRID_SCALE = 10.0f;
+const float GRID_SCALE = 5.0f;
 
 template <size_t NX, size_t NY>
 void updateDensityVertices(const Grid<NX, NY> &grid, sf::VertexArray &vertices) {
@@ -34,7 +34,7 @@ void updateDensityVertices(const Grid<NX, NY> &grid, sf::VertexArray &vertices) 
 
 template <size_t NX, size_t NY>
 void updateVelocityVertices(const Grid<NX, NY> &grid, sf::VertexArray &vertices) {
-    float velocity_scaling = 1.0f;
+    float velocity_scaling = 0.1f;
 
     for (size_t i = 0; i < GRIDX; ++i) {
         for (size_t j = 0; j < GRIDY; ++j) {
@@ -79,6 +79,8 @@ void updateGridVertices(const Grid<NX, NY> &grid, sf::VertexArray &vertices) {
 
 int main() {
     const float spacing = 1.0;
+    const float force = 5000000.0f;
+    const float source = 100.0f;
 
 	Grid<GRIDX, GRIDY> grid(spacing);
 
@@ -106,9 +108,16 @@ int main() {
     sf::RenderWindow window(sf::VideoMode(window_width, window_height), "SFML TEST");
 
     sf::Clock clock;
-    bool fluidPaused = true;
+    bool fluidPaused = false;
     bool showVelocity = false;
     bool showGrid = false;
+
+    bool mouseleftdown = false;
+    bool mouserightdown = false;
+    int mousedownx = 0;
+    int mousedowny = 0;
+    int mousex = 0;
+    int mousey = 0;
 
     while (window.isOpen()) {
         sf::Event event;
@@ -116,7 +125,7 @@ int main() {
             if (event.type == sf::Event::Closed) {
                 window.close();
             } else if (event.type == sf::Event::KeyPressed) {
-                if(event.key.code == sf::Keyboard::S) {
+                if (event.key.code == sf::Keyboard::S) {
                     std::cout << "Updating grid" << "\n";
                     grid.step(0.4);
                     updateDensityVertices(grid, densityVertices);
@@ -149,13 +158,44 @@ int main() {
                         showGrid = true;
                     }
                 }
+            } else if (event.type == sf::Event::MouseButtonPressed) {
+                mousedownx = event.mouseButton.x;
+                mousedowny = event.mouseButton.y;
+                if (event.mouseButton.button == sf::Mouse::Left) {
+                    mouseleftdown = true;
+                } else if (event.mouseButton.button == sf::Mouse::Right) {
+                    mouserightdown = true;
+                }
+            } else if (event.type == sf::Event::MouseButtonReleased) {
+                if (event.mouseButton.button == sf::Mouse::Left) {
+                    mouseleftdown = false;
+                } else if (event.mouseButton.button == sf::Mouse::Right) {
+                    mouserightdown = false;
+                }
+            } else if (event.type == sf::Event::MouseMoved) {
+                mousex = event.mouseMove.x;
+                mousey = event.mouseMove.y;
             }
         }
 
         sf::Time elapsed = clock.restart();
 
         if (!fluidPaused) {
-            grid.step(elapsed.asSeconds());
+            size_t i = size_t(mousex / GRID_SCALE);
+            size_t j = size_t(mousey / GRID_SCALE);
+
+            if (mouseleftdown) {
+                grid.source_velocity_x(i, j) = force * (mousex - mousedownx) / GRID_SCALE;
+                grid.source_velocity_y(i, j) = force * (mousey - mousedowny) / GRID_SCALE;
+                mousedownx = mousex;
+                mousedowny = mousey;
+            }
+            if (mouserightdown) {
+                grid.source_density(i, j) += source;
+            }
+
+            float dt = elapsed.asSeconds();
+            grid.step(dt);
             updateDensityVertices(grid, densityVertices);
             if (showVelocity) {
                 updateVelocityVertices(grid, velocityVertices);
