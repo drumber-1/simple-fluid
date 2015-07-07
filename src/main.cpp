@@ -1,17 +1,16 @@
 #include <iostream>
-#include <cfenv>
 
 #include <SFML/Graphics.hpp>
 #include "fluid/Grid.hpp"
 #include "graphics/GridRenderer.hpp"
 
-const size_t GRIDX = 100;
+const size_t GRIDX = 200;
 const size_t GRIDY = 100;
 
 const float PIXELS_PER_CELL = 5.0f;
 
 const float SCALE_RHO = 10.0;
-const float SCALE_VELOCITY = 1.0f;
+const float SCALE_VELOCITY = 0.1f;
 
 int main() {
     const float spacing = 1.0;
@@ -22,10 +21,6 @@ int main() {
 
     GridRenderer<GRIDX, GRIDY> grid_renderer("res/colourmap.png", PIXELS_PER_CELL, SCALE_RHO, SCALE_VELOCITY);
     grid_renderer.initialiseVertices(grid);
-
-    //sf::Texture colourMap;
-    //colourMap.loadFromFile("res/colourmap.png");
-    //std::cout << "Colour map loaded, (" << colourMap.getSize().x << ", " << colourMap.getSize().y << ")\n";
 
     unsigned int window_width = std::ceil(GRIDX * PIXELS_PER_CELL);
     unsigned int window_height = std::ceil(GRIDY * PIXELS_PER_CELL);
