@@ -7,7 +7,7 @@ template <size_t NX, size_t NY>
 class GridRenderer {
 public:
     GridRenderer(std::string colour_map,
-                 float grid_scale,
+                 float pixels_per_cell,
                  float density_scale,
                  float velocity_scale);
 

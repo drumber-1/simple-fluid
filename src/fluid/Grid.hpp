@@ -14,7 +14,7 @@ class Grid {
 public:
 	Grid(float spacing);
 	void step(float dt);
-    float position(size_t index) const;
+    float get_spacing() const;
 
     // Fluid Variables
     FluidArray<NX, NY> density;
@@ -30,7 +30,7 @@ public:
     FluidArray<NX, NY> buffer_a;
     FluidArray<NX, NY> buffer_b;
 private:
-	const float mSpacing;
+    const float mSpacing;
     BoundaryFunction<NX, NY> bf;
 
     void initialise();
@@ -65,11 +65,6 @@ void Grid<NX, NY>::step(float dt) {
 }
 
 template <size_t NX, size_t NY>
-float Grid<NX, NY>::position(size_t index) const {
-    return index * mSpacing;
-}
-
-template <size_t NX, size_t NY>
 void Grid<NX, NY>::initialise() {
 
     zero_array(velocity_x);
@@ -100,4 +95,9 @@ void Grid<NX, NY>::set_boundaries() {
     set_bounds_wall<NX, NY>(density, FluidVariable::DENSITY);
     set_bounds_wall<NX, NY>(velocity_x, FluidVariable::VELOCITY_X);
     set_bounds_wall<NX, NY>(velocity_y, FluidVariable::VELOCITY_Y);
+}
+
+template <size_t NX, size_t NY>
+float Grid<NX, NY>::get_spacing() const {
+    return mSpacing;
 }
