@@ -3,6 +3,7 @@
 #include <fstream>
 #include <array>
 #include <string>
+#include <iostream>
 
 #include "boundary.hpp"
 #include "operators/advection.hpp"
@@ -15,6 +16,7 @@ public:
 	Grid(float size_x, float size_y);
 	void step(float dt);
     float cell_area() const;
+    void cells_intersected(float x0, float y0, float x1, float y1);
 
     // Fluid Variables
     FluidArray<NX, NY> density;
@@ -46,6 +48,7 @@ Grid<NX, NY>::Grid(float size_x, float size_y) : units_x(size_x), units_y(size_y
                                                  units_per_cell_x(size_x / NX), units_per_cell_y(size_y / NY) {
     bf = set_bounds_wall<NX, NY>;
     initialise();
+    cells_intersected(0.5, 0.5, 2.5, 1.5);
 }
 
 template <size_t NX, size_t NY>
@@ -105,4 +108,70 @@ void Grid<NX, NY>::set_boundaries() {
     set_bounds_wall<NX, NY>(density, FluidVariable::DENSITY);
     set_bounds_wall<NX, NY>(velocity_x, FluidVariable::VELOCITY_X);
     set_bounds_wall<NX, NY>(velocity_y, FluidVariable::VELOCITY_Y);
+}
+
+template <size_t NX, size_t NY>
+void Grid<NX, NY>::cells_intersected(float x0, float y0, float x1, float y1) {
+
+    //First convert x and y from units to cells
+    x0 /= units_per_cell_x;
+    x1 /= units_per_cell_x;
+    y0 /= units_per_cell_y;
+    y1 /= units_per_cell_y;
+
+    std::cout << "Start: " << x0 << ", " << y0 << "\n";
+    std::cout << "End: " << x1 << ", " << y1 << "\n";
+
+    float dx = std::abs(x1 - x0);
+    float dy = std::abs(y1 - y0);
+
+    size_t i = (size_t) std::floor(x0);
+    size_t j = (size_t) std::floor(y0);
+
+    size_t i1 = (size_t) std::floor(x1);
+    size_t j1 = (size_t) std::floor(y1);
+
+    int n = 1;
+    float error = 0.0f;
+    int dir_x, dir_y;
+
+
+    if (dx == 0) {
+        dir_x = 0;
+        error = std::numeric_limits<float>::infinity();
+    } else if (x1 > x0) {
+        dir_x = 1;
+        n += i1 - i;
+        error = (i + 1 - x0) * dy;
+    } else {
+        dir_x = -1;
+        n += i - i1;
+        error = (x0 - i) * dy;
+    }
+
+    if (dy == 0) {
+        dir_y = 0;
+        error -= std::numeric_limits<float>::infinity();
+    } else if (y1 > y0) {
+        dir_y = 1;
+        n += j1 - j;
+        error -= (j + 1 - y0) * dx;
+    } else {
+        dir_y = -1;
+        n += j - j1;
+        error -= (y0 - j) * dx;
+    }
+
+    for (; n > 0; --n) {
+        std::cout << "Visit: " << i << ", " << j << "\n";
+
+        if (error > 0) {
+            j += dir_y;
+            error -= dx;
+        } else {
+            i += dir_x;
+            error += dy;
+        }
+    }
+
 }
