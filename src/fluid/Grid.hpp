@@ -12,9 +12,9 @@
 template <size_t NX, size_t NY>
 class Grid {
 public:
-	Grid(float spacing);
+	Grid(float size_x, float size_y);
 	void step(float dt);
-    float get_spacing() const;
+    float cell_area() const;
 
     // Fluid Variables
     FluidArray<NX, NY> density;
@@ -29,8 +29,12 @@ public:
     // Buffer arrays
     FluidArray<NX, NY> buffer_a;
     FluidArray<NX, NY> buffer_b;
+
+    const float units_x;
+    const float units_y;
+    const float units_per_cell_x;
+    const float units_per_cell_y;
 private:
-    const float mSpacing;
     BoundaryFunction<NX, NY> bf;
 
     void initialise();
@@ -38,7 +42,8 @@ private:
 };
 
 template <size_t NX, size_t NY>
-Grid<NX, NY>::Grid(float spacing) : mSpacing(spacing) {
+Grid<NX, NY>::Grid(float size_x, float size_y) : units_x(size_x), units_y(size_y),
+                                                 units_per_cell_x(size_x / NX), units_per_cell_y(size_y / NY) {
     bf = set_bounds_wall<NX, NY>;
     initialise();
 }
@@ -47,21 +52,26 @@ template <size_t NX, size_t NY>
 void Grid<NX, NY>::step(float dt) {
     add_source(source_density, density, dt);
     zero_array(source_density);
-    advect_linear_backtrace(density, buffer_a, velocity_x, velocity_y, mSpacing, dt, bf, FluidVariable::DENSITY);
+    advect_linear_backtrace(density, buffer_a, velocity_x, velocity_y, units_per_cell_x, units_per_cell_y, dt, bf, FluidVariable::DENSITY);
     std::swap(density, buffer_a);
-    project_hodge_decomp(velocity_x, velocity_y, buffer_a, buffer_b, mSpacing, 20, bf);
+    project_hodge_decomp(velocity_x, velocity_y, buffer_a, buffer_b, units_per_cell_x, units_per_cell_y, 20, bf);
 
     add_source(source_velocity_x, velocity_x, dt);
     zero_array(source_velocity_x);
-    advect_linear_backtrace(velocity_x, buffer_a, velocity_x, velocity_y, mSpacing, dt, bf, FluidVariable::VELOCITY_X);
+    advect_linear_backtrace(velocity_x, buffer_a, velocity_x, velocity_y, units_per_cell_x, units_per_cell_y, dt, bf, FluidVariable::VELOCITY_X);
     std::swap(velocity_x, buffer_a);
 
     add_source(source_velocity_y, velocity_y, dt);
     zero_array(source_velocity_y);
-    advect_linear_backtrace(velocity_y, buffer_a, velocity_x, velocity_y, mSpacing, dt, bf, FluidVariable::VELOCITY_Y);
+    advect_linear_backtrace(velocity_y, buffer_a, velocity_x, velocity_y, units_per_cell_x, units_per_cell_y, dt, bf, FluidVariable::VELOCITY_Y);
     std::swap(velocity_y, buffer_a);
 
-    project_hodge_decomp(velocity_x, velocity_y, buffer_a, buffer_b, mSpacing, 20, bf);
+    project_hodge_decomp(velocity_x, velocity_y, buffer_a, buffer_b, units_per_cell_x, units_per_cell_y, 20, bf);
+}
+
+template <size_t NX, size_t NY>
+float Grid<NX, NY>::cell_area() const {
+    return units_per_cell_x * units_per_cell_y;
 }
 
 template <size_t NX, size_t NY>
@@ -95,9 +105,4 @@ void Grid<NX, NY>::set_boundaries() {
     set_bounds_wall<NX, NY>(density, FluidVariable::DENSITY);
     set_bounds_wall<NX, NY>(velocity_x, FluidVariable::VELOCITY_X);
     set_bounds_wall<NX, NY>(velocity_y, FluidVariable::VELOCITY_Y);
-}
-
-template <size_t NX, size_t NY>
-float Grid<NX, NY>::get_spacing() const {
-    return mSpacing;
 }

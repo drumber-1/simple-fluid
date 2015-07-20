@@ -7,9 +7,10 @@ template <size_t NX, size_t NY>
 class GridRenderer {
 public:
     GridRenderer(std::string colour_map,
-                 float pixels_per_cell,
+                 float pixels_per_unit,
                  float density_scale,
-                 float velocity_scale);
+                 float velocity_scale,
+                 const Grid<NX, NY> &grid);
 
     void initialiseVertices(const Grid<NX, NY> &grid);
     void initialiseDensityVertices(const Grid<NX, NY> &grid);
@@ -31,7 +32,8 @@ private:
 
     sf::Texture colour_map;
 
-    float pixels_per_cell;
+    const float pixels_per_cell_x;
+    const float pixels_per_cell_y;
     float scale_density;
     float scale_velocity;
 
@@ -41,12 +43,14 @@ private:
 
 template <size_t NX,size_t NY>
 GridRenderer<NX, NY>::GridRenderer(std::string cmap,
-                                   float pixels_per_cell,
+                                   float pixels_per_unit,
                                    float density_scale,
-                                   float velocity_scale) :
+                                   float velocity_scale,
+                                   const Grid<NX, NY> &grid) :
         draw_velocity(false),
         draw_grid(false),
-        pixels_per_cell(pixels_per_cell),
+        pixels_per_cell_x(pixels_per_unit * grid.units_per_cell_x),
+        pixels_per_cell_y(pixels_per_unit * grid.units_per_cell_y),
         scale_density(density_scale),
         scale_velocity(velocity_scale) {
     colour_map.loadFromFile(cmap);
@@ -74,10 +78,10 @@ void GridRenderer<NX, NY>::initialiseDensityVertices(const Grid<NX, NY> &grid) {
         for (size_t j = 0; j < NY; ++j) {
             sf::Vertex* quad = &vertices_density[(i + j * NX) * 4];
 
-            quad[0].position = sf::Vector2f(pixels_per_cell *  i     , pixels_per_cell * (j    ));
-            quad[1].position = sf::Vector2f(pixels_per_cell * (i + 1), pixels_per_cell * (j    ));
-            quad[2].position = sf::Vector2f(pixels_per_cell * (i + 1), pixels_per_cell * (j + 1));
-            quad[3].position = sf::Vector2f(pixels_per_cell * (i    ), pixels_per_cell * (j + 1));
+            quad[0].position = sf::Vector2f(pixels_per_cell_x *  i     , pixels_per_cell_y * (j    ));
+            quad[1].position = sf::Vector2f(pixels_per_cell_x * (i + 1), pixels_per_cell_y * (j    ));
+            quad[2].position = sf::Vector2f(pixels_per_cell_x * (i + 1), pixels_per_cell_y * (j + 1));
+            quad[3].position = sf::Vector2f(pixels_per_cell_x * (i    ), pixels_per_cell_y * (j + 1));
         }
     }
     updateDensityVertices(grid);
@@ -89,8 +93,8 @@ void GridRenderer<NX, NY>::initialiseVelocityVertices(const Grid<NX, NY> &grid) 
         for (size_t j = 0; j < NY; ++j) {
             sf::Vertex* line = &vertices_velocity[(i + j * NX) * 2];
 
-            float xstart = pixels_per_cell * (i + 0.5f);
-            float ystart = pixels_per_cell * (j + 0.5f);
+            float xstart = pixels_per_cell_x * (i + 0.5f);
+            float ystart = pixels_per_cell_y * (j + 0.5f);
 
             line[0].position = sf::Vector2f(xstart, ystart);
 
@@ -106,8 +110,8 @@ void GridRenderer<NX, NY>::initialiseGridVertices(const Grid<NX, NY> &grid) {
     for (size_t i = 0; i <= NX; ++i) {
         sf::Vertex* line = &vertices_grid[2 * i];
 
-        line[0].position = sf::Vector2f(i * pixels_per_cell, 0);
-        line[1].position = sf::Vector2f(i * pixels_per_cell, NY * pixels_per_cell);
+        line[0].position = sf::Vector2f(i * pixels_per_cell_x, 0);
+        line[1].position = sf::Vector2f(i * pixels_per_cell_x, NY * pixels_per_cell_y);
 
         line[0].color = color_grid;
         line[1].color = color_grid;
@@ -115,8 +119,8 @@ void GridRenderer<NX, NY>::initialiseGridVertices(const Grid<NX, NY> &grid) {
     for (size_t j = 0; j <= NY; ++j) {
         sf::Vertex* line = &vertices_grid[2 * (NX + 1 + j)];
 
-        line[0].position = sf::Vector2f(0, j * pixels_per_cell);
-        line[1].position = sf::Vector2f(NX * pixels_per_cell, j * pixels_per_cell);
+        line[0].position = sf::Vector2f(0, j * pixels_per_cell_y);
+        line[1].position = sf::Vector2f(NX * pixels_per_cell_x, j * pixels_per_cell_y);
 
         line[0].color = color_grid;
         line[1].color = color_grid;
@@ -152,11 +156,11 @@ void GridRenderer<NX, NY>::updateVelocityVertices(const Grid<NX, NY> &grid) {
         for (size_t j = 0; j < NY; ++j) {
             sf::Vertex* line = &vertices_velocity[(i + j * NX) * 2];
 
-            float xstart = pixels_per_cell * (i + 0.5f);
-            float ystart = pixels_per_cell * (j + 0.5f);
+            float xstart = pixels_per_cell_x * (i + 0.5f);
+            float ystart = pixels_per_cell_y * (j + 0.5f);
 
-            float xoffset = pixels_per_cell *  grid.velocity_x(i, j) * scale_velocity;
-            float yoffset = pixels_per_cell *  grid.velocity_y(i, j) * scale_velocity;
+            float xoffset = pixels_per_cell_x *  grid.velocity_x(i, j) * scale_velocity;
+            float yoffset = pixels_per_cell_y *  grid.velocity_y(i, j) * scale_velocity;
 
             line[0].position = sf::Vector2f(xstart, ystart);
             line[1].position = sf::Vector2f(xstart + xoffset, ystart + yoffset);;

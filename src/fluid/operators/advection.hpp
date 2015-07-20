@@ -3,13 +3,14 @@
 inline float limit(float x, float min, float max);
 
 template <size_t NX, size_t NY>
-void advect_linear_backtrace(const FluidArray<NX, NY>& input, FluidArray<NX, NY>& output, const FluidArray<NX, NY>& xvel, const FluidArray<NX, NY>& yvel, float dx, float dt, BoundaryFunction<NX, NY> boundary, FluidVariable var) {
+void advect_linear_backtrace(const FluidArray<NX, NY>& input, FluidArray<NX, NY>& output, const FluidArray<NX, NY>& xvel, const FluidArray<NX, NY>& yvel, float dx, float dy, float dt, BoundaryFunction<NX, NY> boundary, FluidVariable var) {
 
-    float dt0 = dt / dx;
+    float dtdx = dt / dx;
+    float dtdy = dt / dy;
     for (size_t i = 1; i < NX - 1; ++i) {
         for (size_t j = 1; j < NY - 1; ++j) {
-            float x = i - dt0 * xvel(i, j);
-            float y = j - dt0 * yvel(i, j);
+            float x = i - dtdx * xvel(i, j);
+            float y = j - dtdy * yvel(i, j);
 
             x = limit(x, 0.5f, NX - 1.5f);
             y = limit(y, 0.5f, NY - 1.5f);

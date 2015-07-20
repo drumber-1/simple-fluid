@@ -16,15 +16,16 @@ namespace simplefluid {
         void render(sf::RenderWindow &window);
 
     private:
-        Grid<NCELLS_X, NCELLS_Y> grid;
-        GridRenderer<NCELLS_X, NCELLS_Y> grid_renderer;
-        FluidInteractor<NCELLS_X, NCELLS_Y> fluidinteractor;
+        Grid<GRID_XCELLS, GRID_YCELLS> grid;
+        GridRenderer<GRID_XCELLS, GRID_YCELLS> grid_renderer;
+        FluidInteractor<GRID_XCELLS, GRID_YCELLS> fluid_interactor;
 
         bool fluid_paused = false;
     };
 
-    SimpleFluid::SimpleFluid() : grid(CELL_SPACING),
-                                 grid_renderer(COLOUR_MAP, PIXELS_PER_CELL, SCALE_RHO, SCALE_VELOCITY) {
+    SimpleFluid::SimpleFluid() : grid(GRID_WIDTH, GRID_HEIGHT),
+                                 grid_renderer(COLOUR_MAP, PIXELS_PER_UNIT, SCALE_RHO, SCALE_VELOCITY, grid),
+                                 fluid_interactor(PIXELS_PER_UNIT, grid) {
         grid_renderer.initialiseVertices(grid);
     }
 
@@ -46,7 +47,7 @@ namespace simplefluid {
             grid.step(0.4f);
         }
 
-        fluidinteractor.update(dt, inputState, grid);
+        fluid_interactor.update(dt, inputState, grid);
 
         if (!fluid_paused) {
             grid.step(dt);

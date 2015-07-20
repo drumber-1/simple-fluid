@@ -3,11 +3,12 @@
 #include <string>
 
 namespace simplefluid {
-    const size_t NCELLS_X = 200;
-    const size_t NCELLS_Y = 100;
-    const float CELL_SPACING = 1.0f;
+    const size_t GRID_XCELLS = 300;
+    const size_t GRID_YCELLS = 300;
+    const float GRID_WIDTH = 100.0f;
+    const float GRID_HEIGHT = 100.0f;
 
-    const float PIXELS_PER_CELL = 5.0f;
+    const float PIXELS_PER_UNIT = 10.0f;
     const float SCALE_RHO = 10.0f;
     const float SCALE_VELOCITY = 0.1f;
 
