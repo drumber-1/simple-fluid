@@ -21,7 +21,7 @@ void project_hodge_decomp(FluidArray<NX, NY>& xvel, FluidArray<NX, NY>& yvel, Fl
                 p(i, j) = (div(i, j) + p(i + 1, j) + p(i - 1, j) + p(i, j + 1) + p(i, j - 1)) / 4.0f;
             }
         }
-        //set_bounds<FluidVariable::OTHER, NX, NY>(p, boundaryType);
+        set_bounds<FluidVariable::OTHER>(p, boundaryType);
     }
 
     for (size_t i = 1; i < NX - 1; ++i) {
