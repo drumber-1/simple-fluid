@@ -3,7 +3,6 @@
 #include <fstream>
 #include <array>
 #include <string>
-#include <iostream>
 #include <cmath>
 #include <limits>
 
@@ -18,7 +17,9 @@ public:
 	Grid(float size_x, float size_y, BoundaryType boundaryType);
 	void step(float dt);
     float cell_area() const;
-    void cells_intersected(float x0, float y0, float x1, float y1);
+
+    template<typename F>
+    void apply_along_ray(F function, float x0, float y0, float x1, float y1);
 
     // Fluid Variables
     FluidArray<NX, NY> density;
@@ -112,16 +113,14 @@ void Grid<NX, NY>::set_boundaries() {
 }
 
 template <size_t NX, size_t NY>
-void Grid<NX, NY>::cells_intersected(float x0, float y0, float x1, float y1) {
+template <typename F>
+void Grid<NX, NY>::apply_along_ray(F function, float x0, float y0, float x1, float y1) {
 
     //First convert x and y from units to cells
     x0 /= units_per_cell_x;
     x1 /= units_per_cell_x;
     y0 /= units_per_cell_y;
     y1 /= units_per_cell_y;
-
-    std::cout << "Start: " << x0 << ", " << y0 << "\n";
-    std::cout << "End: " << x1 << ", " << y1 << "\n";
 
     float dx = std::abs(x1 - x0);
     float dy = std::abs(y1 - y0);
@@ -132,10 +131,9 @@ void Grid<NX, NY>::cells_intersected(float x0, float y0, float x1, float y1) {
     size_t i1 = (size_t) std::floor(x1);
     size_t j1 = (size_t) std::floor(y1);
 
-    int n = 1;
+    size_t n = 1;
     float error = 0.0f;
     int dir_x, dir_y;
-
 
     if (dx == 0) {
         dir_x = 0;
@@ -163,8 +161,8 @@ void Grid<NX, NY>::cells_intersected(float x0, float y0, float x1, float y1) {
         error -= (y0 - j) * dx;
     }
 
-    for (; n > 0; --n) {
-        std::cout << "Visit: " << i << ", " << j << "\n";
+    for (size_t icell = 0; icell < n; ++icell) {
+        function(*this, n, i, j);
 
         if (error > 0) {
             j += dir_y;

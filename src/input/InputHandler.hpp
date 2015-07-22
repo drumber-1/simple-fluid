@@ -29,16 +29,17 @@ void InputHandler::process_input(sf::RenderWindow &window) {
             state.mouse_x = event.mouseButton.x;
             state.mouse_y = event.mouseButton.y;
             if (event.mouseButton.button == sf::Mouse::Left) {
-                state.add_velocity = true;
-                state.add_velocity_start = true;
+                state.mouse_left_down = true;
+                state.mouse_left_down_last = true;
             } else if (event.mouseButton.button == sf::Mouse::Right) {
-                state.add_density = true;
+                state.mouse_right_down = true;
+                state.mouse_right_down_last = true;
             }
         } else if (event.type == sf::Event::MouseButtonReleased) {
             if (event.mouseButton.button == sf::Mouse::Left) {
-                state.add_velocity = false;
+                state.mouse_left_down = false;
             } else if (event.mouseButton.button == sf::Mouse::Right) {
-                state.add_density = false;
+                state.mouse_right_down = false;
             }
         } else if (event.type == sf::Event::MouseMoved) {
             state.mouse_x = event.mouseMove.x;

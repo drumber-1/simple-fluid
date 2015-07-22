@@ -7,9 +7,10 @@ public:
     bool toggle_paused = false;
     bool do_step = false;
 
-    bool add_density = false;
-    bool add_velocity_start = false;
-    bool add_velocity = false;
+    bool mouse_left_down = false;
+    bool mouse_left_down_last = false;
+    bool mouse_right_down = false;
+    bool mouse_right_down_last = false;
 
     float mouse_x = false;
     float mouse_y = false;
@@ -20,6 +21,7 @@ public:
         toggle_paused = false;
         do_step = false;
 
-        add_velocity_start = false;
+        mouse_left_down_last = false;
+        mouse_right_down_last = false;
     }
 };
