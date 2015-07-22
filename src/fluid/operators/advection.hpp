@@ -1,9 +1,12 @@
+#pragma once
+
 #include "../common.hpp"
+#include "../boundary.hpp"
 
 inline float limit(float x, float min, float max);
 
-template <size_t NX, size_t NY>
-void advect_linear_backtrace(const FluidArray<NX, NY>& input, FluidArray<NX, NY>& output, const FluidArray<NX, NY>& xvel, const FluidArray<NX, NY>& yvel, float dx, float dy, float dt, BoundaryFunction<NX, NY> boundary, FluidVariable var) {
+template <FluidVariable VAR, size_t NX, size_t NY>
+void advect_linear_backtrace(const FluidArray<NX, NY>& input, FluidArray<NX, NY>& output, const FluidArray<NX, NY>& xvel, const FluidArray<NX, NY>& yvel, float dx, float dy, float dt, BoundaryType boundaryType) {
 
     float dtdx = dt / dx;
     float dtdy = dt / dy;
@@ -30,7 +33,7 @@ void advect_linear_backtrace(const FluidArray<NX, NY>& input, FluidArray<NX, NY>
 
         }
     }
-    boundary(output, var);
+    set_bounds<VAR>(output, boundaryType);
 }
 
 inline float limit(float x, float min, float max) {

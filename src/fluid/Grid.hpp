@@ -15,7 +15,7 @@
 template <size_t NX, size_t NY>
 class Grid {
 public:
-	Grid(float size_x, float size_y);
+	Grid(float size_x, float size_y, BoundaryType boundaryType);
 	void step(float dt);
     float cell_area() const;
     void cells_intersected(float x0, float y0, float x1, float y1);
@@ -39,16 +39,16 @@ public:
     const float units_per_cell_x;
     const float units_per_cell_y;
 private:
-    BoundaryFunction<NX, NY> bf;
+    const BoundaryType boundType;
 
     void initialise();
     void set_boundaries();
 };
 
 template <size_t NX, size_t NY>
-Grid<NX, NY>::Grid(float size_x, float size_y) : units_x(size_x), units_y(size_y),
-                                                 units_per_cell_x(size_x / NX), units_per_cell_y(size_y / NY) {
-    bf = set_bounds_wall<NX, NY>;
+Grid<NX, NY>::Grid(float size_x, float size_y, BoundaryType boundaryType) : units_x(size_x), units_y(size_y),
+                                                                            units_per_cell_x(size_x / NX), units_per_cell_y(size_y / NY),
+                                                                            boundType(boundaryType) {
     initialise();
 }
 
@@ -56,21 +56,21 @@ template <size_t NX, size_t NY>
 void Grid<NX, NY>::step(float dt) {
     add_source(source_density, density, dt);
     zero_array(source_density);
-    advect_linear_backtrace(density, buffer_a, velocity_x, velocity_y, units_per_cell_x, units_per_cell_y, dt, bf, FluidVariable::DENSITY);
+    advect_linear_backtrace<FluidVariable::DENSITY>(density, buffer_a, velocity_x, velocity_y, units_per_cell_x, units_per_cell_y, dt, boundType);
     std::swap(density, buffer_a);
-    project_hodge_decomp(velocity_x, velocity_y, buffer_a, buffer_b, units_per_cell_x, units_per_cell_y, 20, bf);
+    project_hodge_decomp(velocity_x, velocity_y, buffer_a, buffer_b, units_per_cell_x, units_per_cell_y, 20, boundType);
 
     add_source(source_velocity_x, velocity_x, dt);
     zero_array(source_velocity_x);
-    advect_linear_backtrace(velocity_x, buffer_a, velocity_x, velocity_y, units_per_cell_x, units_per_cell_y, dt, bf, FluidVariable::VELOCITY_X);
+    advect_linear_backtrace<FluidVariable::VELOCITY_X>(velocity_x, buffer_a, velocity_x, velocity_y, units_per_cell_x, units_per_cell_y, dt, boundType);
     std::swap(velocity_x, buffer_a);
 
     add_source(source_velocity_y, velocity_y, dt);
     zero_array(source_velocity_y);
-    advect_linear_backtrace(velocity_y, buffer_a, velocity_x, velocity_y, units_per_cell_x, units_per_cell_y, dt, bf, FluidVariable::VELOCITY_Y);
+    advect_linear_backtrace<FluidVariable::VELOCITY_Y>(velocity_y, buffer_a, velocity_x, velocity_y, units_per_cell_x, units_per_cell_y, dt, boundType);
     std::swap(velocity_y, buffer_a);
 
-    project_hodge_decomp(velocity_x, velocity_y, buffer_a, buffer_b, units_per_cell_x, units_per_cell_y, 20, bf);
+    project_hodge_decomp(velocity_x, velocity_y, buffer_a, buffer_b, units_per_cell_x, units_per_cell_y, 20, boundType);
 }
 
 template <size_t NX, size_t NY>
@@ -106,9 +106,9 @@ void Grid<NX, NY>::initialise() {
 
 template <size_t NX, size_t NY>
 void Grid<NX, NY>::set_boundaries() {
-    set_bounds_wall<NX, NY>(density, FluidVariable::DENSITY);
-    set_bounds_wall<NX, NY>(velocity_x, FluidVariable::VELOCITY_X);
-    set_bounds_wall<NX, NY>(velocity_y, FluidVariable::VELOCITY_Y);
+    set_bounds<FluidVariable::DENSITY>(density, boundType);
+    set_bounds<FluidVariable::DENSITY>(velocity_x, boundType);
+    set_bounds<FluidVariable::DENSITY>(velocity_y, boundType);
 }
 
 template <size_t NX, size_t NY>

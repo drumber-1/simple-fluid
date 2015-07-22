@@ -23,7 +23,7 @@ namespace simplefluid {
         bool fluid_paused = false;
     };
 
-    SimpleFluid::SimpleFluid() : grid(GRID_WIDTH, GRID_HEIGHT),
+    SimpleFluid::SimpleFluid() : grid(GRID_WIDTH, GRID_HEIGHT, BoundaryType::WALL),
                                  grid_renderer(COLOUR_MAP, PIXELS_PER_UNIT, SCALE_RHO, SCALE_VELOCITY, grid),
                                  fluid_interactor(PIXELS_PER_UNIT, grid) {
         grid_renderer.initialiseVertices(grid);
