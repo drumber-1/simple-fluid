@@ -1,0 +1,6 @@
+# clion files
+.idea
+
+# noui objects and binary
+noui/bin
+noui/build
