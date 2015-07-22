@@ -4,6 +4,8 @@
 #include <array>
 #include <string>
 #include <iostream>
+#include <cmath>
+#include <limits>
 
 #include "boundary.hpp"
 #include "operators/advection.hpp"
@@ -48,7 +50,6 @@ Grid<NX, NY>::Grid(float size_x, float size_y) : units_x(size_x), units_y(size_y
                                                  units_per_cell_x(size_x / NX), units_per_cell_y(size_y / NY) {
     bf = set_bounds_wall<NX, NY>;
     initialise();
-    cells_intersected(0.5, 0.5, 2.5, 1.5);
 }
 
 template <size_t NX, size_t NY>

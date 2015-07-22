@@ -1,6 +1,6 @@
 #pragma once
 
-#include <src/fluid/common.hpp>
+#include "../common.hpp"
 
 template <size_t NX, size_t NY>
 void add_source(const FluidArray<NX, NY>& source, FluidArray<NX, NY>& target, float dt) {
