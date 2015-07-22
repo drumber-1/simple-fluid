@@ -1,9 +1,10 @@
 #pragma once
 
 #include "../common.hpp"
+#include "../boundary.hpp"
 
-template <size_t NX, size_t NY>
-void diffuse_simple(const FluidArray<NX, NY>& input, FluidArray<NX, NY>& output, float diff, float dx, float dy, float dt, BoundaryFunction<NX, NY> boundary, FluidVariable var) {
+template <FluidVariable VAR, size_t NX, size_t NY>
+void diffuse_simple(const FluidArray<NX, NY>& input, FluidArray<NX, NY>& output, float diff, float dx, float dy, float dt, BoundaryType boundaryType) {
 
     float a = dt * diff / (dx * dy);
 
@@ -12,11 +13,11 @@ void diffuse_simple(const FluidArray<NX, NY>& input, FluidArray<NX, NY>& output,
             output(i, j) = input(i, j) + a * (input(i + 1, j) + input(i - 1, j) + input(i, j + 1), + input(i, j - 1) + 4.0f * input(i, j));
         }
     }
-    boundary(output, var);
+    set_bounds<VAR>(output, boundaryType);
 }
 
-template <size_t NX, size_t NY>
-void diffuse_gauss_seidel(const FluidArray<NX, NY>& input, FluidArray<NX, NY>& output, float diff, float dx, float dy, float dt, size_t nsteps, BoundaryFunction<NX, NY> boundary, FluidVariable var) {
+template <FluidVariable VAR, size_t NX, size_t NY>
+void diffuse_gauss_seidel(const FluidArray<NX, NY>& input, FluidArray<NX, NY>& output, float diff, float dx, float dy, float dt, size_t nsteps, BoundaryType boundaryType) {
 
     float a = dt * diff / (dx * dy);
 
@@ -27,5 +28,5 @@ void diffuse_gauss_seidel(const FluidArray<NX, NY>& input, FluidArray<NX, NY>& o
             }
         }
     }
-    boundary(output, var);
+    set_bounds<VAR>(output, boundaryType);
 }
