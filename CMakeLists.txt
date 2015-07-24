@@ -13,6 +13,6 @@ include_directories(${SFML_INCLUDE_DIR} ${PROJECT_SOURCE_DIR})
 configure_file(res/colourmap.png ${CMAKE_CURRENT_BINARY_DIR}/res/colourmap.png COPYONLY)
 
 set(SOURCE_FILES src/main.cpp)
-add_executable(simple_fluid ${SOURCE_FILES} src/fluid/Grid.hpp src/fluid/operators/diffusion.hpp src/fluid/util/Array2.hpp src/fluid/common.hpp src/fluid/operators/advection.hpp src/fluid/operators/projection.hpp src/fluid/FluidVariable.hpp src/fluid/boundary.hpp src/fluid/operators/misc.hpp src/graphics/GridRenderer.hpp src/input/InputHandler.hpp src/SimpleFluid.hpp src/parameters.hpp src/input/InputState.hpp src/input/FluidInteractor.hpp src/fluid/util/clamp_coordinates.hpp)
+add_executable(simple_fluid ${SOURCE_FILES} src/fluid/Grid.hpp src/fluid/operators/diffusion.hpp src/fluid/util/Array2.hpp src/fluid/common.hpp src/fluid/operators/advection.hpp src/fluid/operators/projection.hpp src/fluid/FluidVariable.hpp src/fluid/boundary.hpp src/fluid/operators/misc.hpp src/graphics/GridRenderer.hpp src/input/InputHandler.hpp src/SimpleFluid.hpp src/parameters.hpp src/input/InputState.hpp src/input/FluidInteractor.hpp)
 
 target_link_libraries(simple_fluid ${SFML_LIBRARIES})
