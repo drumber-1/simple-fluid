@@ -17,6 +17,7 @@ public:
 	Grid(float size_x, float size_y, BoundaryType boundaryType);
 	void step(float dt);
     float cell_area() const;
+	inline bool in_grid(int i, int j) const;
 
     template<typename F>
     void apply_along_ray(F function, float x0, float y0, float x1, float y1);
@@ -113,6 +114,12 @@ void Grid<NX, NY>::set_boundaries() {
 }
 
 template <size_t NX, size_t NY>
+inline bool Grid<NX, NY>::in_grid(int i, int j) const {
+	//All arrays are the same size
+	return density.in_grid(i, j);
+}
+
+template <size_t NX, size_t NY>
 template <typename F>
 void Grid<NX, NY>::apply_along_ray(F function, float x0, float y0, float x1, float y1) {
 
@@ -125,11 +132,11 @@ void Grid<NX, NY>::apply_along_ray(F function, float x0, float y0, float x1, flo
     float dx = std::abs(x1 - x0);
     float dy = std::abs(y1 - y0);
 
-    size_t i = (size_t) std::floor(x0);
-    size_t j = (size_t) std::floor(y0);
+    int i = (int) std::floor(x0);
+    int j = (int) std::floor(y0);
 
-    size_t i1 = (size_t) std::floor(x1);
-    size_t j1 = (size_t) std::floor(y1);
+    int i1 = (int) std::floor(x1);
+    int j1 = (int) std::floor(y1);
 
     size_t n = 1;
     float error = 0.0f;
@@ -162,7 +169,9 @@ void Grid<NX, NY>::apply_along_ray(F function, float x0, float y0, float x1, flo
     }
 
     for (size_t icell = 0; icell < n; ++icell) {
-        function(*this, n, i, j);
+		if (in_grid(i, j)) {
+			function(*this, n, i, j);
+		}
 
         if (error > 0) {
             j += dir_y;
@@ -172,5 +181,4 @@ void Grid<NX, NY>::apply_along_ray(F function, float x0, float y0, float x1, flo
             error += dy;
         }
     }
-
 }

@@ -8,7 +8,7 @@ namespace simplefluid {
     const float GRID_WIDTH = 100.0f;
     const float GRID_HEIGHT = 100.0f;
 
-    const float PIXELS_PER_UNIT = 10.0f;
+    const float PIXELS_PER_UNIT = 5.0f;
     const float SCALE_RHO = 10.0f;
     const float SCALE_VELOCITY = 0.1f;
 
