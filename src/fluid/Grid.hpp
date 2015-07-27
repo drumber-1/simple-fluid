@@ -56,6 +56,15 @@ Grid<NX, NY>::Grid(float size_x, float size_y, BoundaryType boundaryType) : unit
 
 template <size_t NX, size_t NY>
 void Grid<NX, NY>::step(float dt) {
+
+	for (int i = 145; i < 155; ++i) {
+		for (int j = 260; j < 265; ++j) {
+			source_density(i, j) = 10.0f / cell_area();
+			source_velocity_y(i, j) = -100.0f;
+		}
+	}
+
+
     add_source(source_density, density, dt);
     zero_array(source_density);
     advect_linear_backtrace<FluidVariable::DENSITY>(density, buffer_a, velocity_x, velocity_y, units_per_cell_x, units_per_cell_y, dt, boundType);
