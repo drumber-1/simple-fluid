@@ -13,7 +13,7 @@ public:
 };
 
 class VelocityFunctor {
-    const float FORCE = 50.0f;
+    const float FORCE = 10.0f;
 public:
     float velocity_x = 0.0f;
     float velocity_y = 0.0f;
