@@ -12,11 +12,16 @@ void advect_linear_backtrace(const FluidArray<NX, NY>& input, FluidArray<NX, NY>
     float dtdy = dt / dy;
     for (size_t i = 1; i < NX - 1; ++i) {
         for (size_t j = 1; j < NY - 1; ++j) {
-            float x = i - dtdx * xvel(i, j);
-            float y = j - dtdy * yvel(i, j);
+			float x = i - dtdx * xvel(i, j);
+			float y = j - dtdy * yvel(i, j);
 
-            x = limit(x, 0.5f, NX - 1.5f);
-            y = limit(y, 0.5f, NY - 1.5f);
+			if (boundaryType == BoundaryType::PERIODIC) {
+				x = std::fmod(x, NX);
+				y = std::fmod(y, NY);
+			}
+
+			x = limit(x, 0.5f, NX - 1.5f);
+			y = limit(y, 0.5f, NY - 1.5f);
 
             unsigned int i0 = (unsigned int)x;
             unsigned int i1 = i0 + 1;

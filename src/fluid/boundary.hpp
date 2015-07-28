@@ -7,7 +7,8 @@ enum BoundaryType {
     WALL,
     FREE,
     INFLOW,
-    OUTFLOW
+    OUTFLOW,
+	PERIODIC
 };
 
 template <FluidVariable VAR, size_t NX, size_t NY>
@@ -21,6 +22,9 @@ void set_bounds_inflow(FluidArray<NX, NY>& array);
 
 template <FluidVariable VAR, size_t NX, size_t NY>
 void set_bounds_outflow(FluidArray<NX, NY>& array);
+
+template <size_t NX, size_t NY>
+void set_bounds_periodic(FluidArray<NX, NY>& array);
 
 template<FluidVariable VAR, size_t NX, size_t NY>
 void set_bounds(FluidArray<NX, NY>& array, BoundaryType bt) {
@@ -36,6 +40,9 @@ void set_bounds(FluidArray<NX, NY>& array, BoundaryType bt) {
 			break;
 		case OUTFLOW:
 			set_bounds_outflow<VAR>(array);
+			break;
+		case PERIODIC:
+			set_bounds_periodic(array);
 			break;
     }
 }
@@ -170,6 +177,22 @@ void set_bounds_outflow(FluidArray<NX, NY>& array)  {
 			}
 	}
 
+	array(0     , 0     ) = 0.5f * (array(1     , 0     ) + array(0     , 1     ));
+	array(0     , NY - 1) = 0.5f * (array(1     , NY - 1) + array(0     , NY - 2));
+	array(NX - 1, 0     ) = 0.5f * (array(NX - 2, 0     ) + array(NX - 1, 1     ));
+	array(NX - 1, NY - 1) = 0.5f * (array(NX - 2, NY - 1) + array(NX - 1, NY - 2));
+}
+
+template <size_t NX, size_t NY>
+void set_bounds_periodic(FluidArray<NX, NY>& array) {
+	for (size_t i = 1; i < NX - 1; ++i) {
+		array(i, 0     ) = array(i, NY - 2);
+		array(i, NY - 1) = array(i, 1     );
+	}
+	for (size_t j = 1; j < NY - 1; ++j) {
+		array(0     , j) = array(NX - 2, j);
+		array(NX - 1, j) = array(1     , j);
+	}
 	array(0     , 0     ) = 0.5f * (array(1     , 0     ) + array(0     , 1     ));
 	array(0     , NY - 1) = 0.5f * (array(1     , NY - 1) + array(0     , NY - 2));
 	array(NX - 1, 0     ) = 0.5f * (array(NX - 2, 0     ) + array(NX - 1, 1     ));

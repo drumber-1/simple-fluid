@@ -57,13 +57,12 @@ Grid<NX, NY>::Grid(float size_x, float size_y, BoundaryType boundaryType) : unit
 template <size_t NX, size_t NY>
 void Grid<NX, NY>::step(float dt) {
 
-	for (int i = 145; i < 155; ++i) {
+	/*for (int i = 145; i < 155; ++i) {
 		for (int j = 260; j < 265; ++j) {
 			source_density(i, j) = 10.0f / cell_area();
 			source_velocity_y(i, j) = -100.0f;
 		}
-	}
-
+	}*/
 
     add_source(source_density, density, dt);
     zero_array(source_density);
@@ -178,6 +177,10 @@ void Grid<NX, NY>::apply_along_ray(F function, float x0, float y0, float x1, flo
     }
 
     for (size_t icell = 0; icell < n; ++icell) {
+        if (boundType == BoundaryType::PERIODIC) {
+            i %= NX;
+            j %= NY;
+        }
 		if (in_grid(i, j)) {
 			function(*this, n, i, j);
 		}
