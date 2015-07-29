@@ -10,6 +10,9 @@
 #include "operators/advection.hpp"
 #include "operators/projection.hpp"
 #include "operators/misc.hpp"
+#include "../util/wrap.hpp"
+
+#include <iostream>
 
 template <size_t NX, size_t NY>
 class Grid {
@@ -178,8 +181,8 @@ void Grid<NX, NY>::apply_along_ray(F function, float x0, float y0, float x1, flo
 
     for (size_t icell = 0; icell < n; ++icell) {
         if (boundType == BoundaryType::PERIODIC) {
-            i %= NX;
-            j %= NY;
+            i = util::wrap(i, NX);
+            j = util::wrap(j, NY);
         }
 		if (in_grid(i, j)) {
 			function(*this, n, i, j);
