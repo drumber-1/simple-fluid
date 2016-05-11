@@ -14,7 +14,7 @@ namespace util {
 
 		inline size_t flattened_index(size_t i, size_t j) const;
 
-		inline bool in_grid(int i, int j) const;
+		inline bool in_grid(size_t i, size_t j) const;
 
 	private:
 		std::vector<T> data;
@@ -40,7 +40,7 @@ namespace util {
 	}
 
 	template<typename T, size_t NX, size_t NY>
-	inline bool Array2<T, NX, NY>::in_grid(int i, int j) const {
+	inline bool Array2<T, NX, NY>::in_grid(size_t i, size_t j) const {
 		return i >= 0 && i < NX && j >= 0 && j < NY;
 	}
 }
