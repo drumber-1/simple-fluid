@@ -2,9 +2,9 @@
 
 #include <string>
 
-namespace simplefluid {
-    const size_t GRID_XCELLS = 300;
-    const size_t GRID_YCELLS = 300;
+namespace sf {
+    const size_t GRID_XCELLS = 200;
+    const size_t GRID_YCELLS = 200;
     const float GRID_WIDTH = 100.0f;
     const float GRID_HEIGHT = 100.0f;
 

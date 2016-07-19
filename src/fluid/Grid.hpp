@@ -21,6 +21,8 @@ public:
 	void step(float dt);
     float cell_area() const;
 	inline bool in_grid(int i, int j) const;
+    inline size_t xsize() const { return NX; }
+	inline size_t ysize() const { return NY; }
 
     template<typename F>
     void apply_along_ray(F function, float x0, float y0, float x1, float y1);
@@ -60,13 +62,6 @@ Grid<NX, NY>::Grid(float size_x, float size_y, BoundaryType boundaryType) : unit
 template <size_t NX, size_t NY>
 void Grid<NX, NY>::step(float dt) {
 
-	/*for (int i = 145; i < 155; ++i) {
-		for (int j = 260; j < 265; ++j) {
-			source_density(i, j) = 10.0f / cell_area();
-			source_velocity_y(i, j) = -100.0f;
-		}
-	}*/
-
     add_source(source_density, density, dt);
     zero_array(source_density);
     advect_linear_backtrace<FluidVariable::DENSITY>(density, buffer_a, velocity_x, velocity_y, units_per_cell_x, units_per_cell_y, dt, boundType);
@@ -103,16 +98,6 @@ void Grid<NX, NY>::initialise() {
 
     zero_array(buffer_a);
     zero_array(buffer_b);
-
-    for (size_t i = 0; i < NX; ++i) {
-        for (size_t j = 0; j < NY; ++j) {
-            density(i, j) = 1.0;
-
-            if (i > NX / 4 && i < 3 * NX / 4 && j > NY / 4 && j < 3 * NY / 4) {
-                density(i, j) = 10.0;
-            }
-        }
-    }
 
     set_boundaries();
 }

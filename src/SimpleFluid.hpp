@@ -6,7 +6,7 @@
 #include "input/InputState.hpp"
 #include "input/FluidInteractor.hpp"
 
-namespace simplefluid {
+namespace sf {
     class SimpleFluid {
     public:
         SimpleFluid();
@@ -15,8 +15,8 @@ namespace simplefluid {
 
         void render(sf::RenderWindow &window);
 
-    private:
         Grid<GRID_XCELLS, GRID_YCELLS> grid;
+    private:
         GridRenderer<GRID_XCELLS, GRID_YCELLS> grid_renderer;
         FluidInteractor<GRID_XCELLS, GRID_YCELLS> fluid_interactor;
 
