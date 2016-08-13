@@ -31,5 +31,5 @@ Then run the created ```simple-fluid``` binary.
 * sfml
 
 # TODO
-* Implement ease way to add persistent sources
+* Implement easy way to add persistent sources
 * Replace ```const``` with ```constexpr``` where appropriate and benchmark difference
